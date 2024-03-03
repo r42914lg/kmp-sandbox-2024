@@ -20,10 +20,6 @@ class BreedViewModel(
 
     val breedState: StateFlow<BreedViewState> = mutableBreedState.asStateFlow()
 
-    /**
-     * Activates this viewModel so that `breedState` returns the current breed state. Suspends until cancelled, at
-     * which point `breedState` will no longer update.
-     */
     suspend fun activate() {
         observeBreeds()
     }
@@ -63,7 +59,6 @@ class BreedViewModel(
     }
 
     suspend fun refreshBreeds() {
-        // Set loading state, which will be cleared when the repository re-emits
         mutableBreedState.update {
             when (it) {
                 is BreedViewState.Initial -> it
@@ -91,7 +86,7 @@ class BreedViewModel(
             when (it) {
                 is BreedViewState.Content -> it.copy(
                     isLoading = false
-                ) // Just let it fail silently if we have a cache
+                )
                 is BreedViewState.Empty,
                 is BreedViewState.Error,
                 is BreedViewState.Initial -> BreedViewState.Error(

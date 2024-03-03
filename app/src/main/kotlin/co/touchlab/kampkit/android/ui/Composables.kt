@@ -1,5 +1,6 @@
 package co.touchlab.kampkit.android.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.TweenSpec
@@ -40,22 +41,31 @@ import co.touchlab.kampkit.models.BreedViewModel
 import co.touchlab.kampkit.models.BreedViewState
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 @Composable
-fun MainScreen(viewModel: BreedViewModel, log: Logger) {
+fun MainScreen(
+    viewModel: BreedViewModel,
+    log: Logger,
+    onToDetails: (Breed, String) -> Unit,
+    onBack: () -> Unit
+) {
     val dogsState by viewModel.breedState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(viewModel) {
         viewModel.activate()
     }
-
+    BackHandler {
+        onBack()
+    }
     MainScreenContent(
         dogsState = dogsState,
         onRefresh = { scope.launch { viewModel.refreshBreeds() } },
         onSuccess = { data -> log.v { "View updating with ${data.size} breeds" } },
         onError = { exception -> log.e { "Displaying error: $exception" } },
-        onFavorite = { scope.launch { viewModel.updateBreedFavorite(it) } }
+        onFavorite = { scope.launch { viewModel.updateBreedFavorite(it) } },
+        onBreedSelected = onToDetails
     )
 }
 
@@ -66,7 +76,8 @@ fun MainScreenContent(
     onRefresh: () -> Unit = {},
     onSuccess: (List<Breed>) -> Unit = {},
     onError: (String) -> Unit = {},
-    onFavorite: (Breed) -> Unit = {}
+    onFavorite: (Breed) -> Unit = {},
+    onBreedSelected: (Breed, String) -> Unit,
 ) {
     Surface(
         color = MaterialTheme.colors.background,
@@ -80,7 +91,11 @@ fun MainScreenContent(
                 is BreedViewState.Content -> {
                     val breeds = dogsState.breeds
                     onSuccess(breeds)
-                    Success(successData = breeds, favoriteBreed = onFavorite)
+                    Success(
+                        successData = breeds,
+                        favoriteBreed = onFavorite,
+                        drillDown = onBreedSelected,
+                    )
                 }
 
                 is BreedViewState.Error -> {
@@ -130,37 +145,49 @@ fun Error(error: String) {
 }
 
 @Composable
-fun Success(successData: List<Breed>, favoriteBreed: (Breed) -> Unit) {
-    DogList(breeds = successData, favoriteBreed)
+fun Success(successData: List<Breed>, favoriteBreed: (Breed) -> Unit, drillDown: (Breed, String) -> Unit) {
+    DogList(breeds = successData, drillDown, favoriteBreed)
 }
 
 @Composable
-fun DogList(breeds: List<Breed>, onItemClick: (Breed) -> Unit) {
+fun DogList(breeds: List<Breed>, onItemClick: (Breed, String) -> Unit, onFavoriteClick: (Breed) -> Unit) {
     LazyColumn {
         items(breeds) { breed ->
-            DogRow(breed) {
-                onItemClick(it)
-            }
+            DogRow(
+                breed = breed,
+                onClick = onItemClick,
+                onFavoriteClick = onFavoriteClick,
+            )
             Divider()
         }
     }
 }
 
 @Composable
-fun DogRow(breed: Breed, onClick: (Breed) -> Unit) {
+fun DogRow(breed: Breed, onClick: (Breed, String) -> Unit, onFavoriteClick: (Breed) -> Unit) {
     Row(
         Modifier
-            .clickable { onClick(breed) }
+            .clickable {
+                onClick(
+                    breed,
+                    LocalDateTime
+                        .now()
+                        .toString()
+                )
+            }
             .padding(10.dp)
     ) {
         Text(breed.name, Modifier.weight(1F))
-        FavoriteIcon(breed)
+        FavoriteIcon(breed) {
+            onFavoriteClick(breed)
+        }
     }
 }
 
 @Composable
-fun FavoriteIcon(breed: Breed) {
+fun FavoriteIcon(breed: Breed, onFavoriteClick: (Breed) -> Unit) {
     Crossfade(
+        modifier = Modifier.clickable { onFavoriteClick(breed) },
         targetState = !breed.favorite,
         animationSpec = TweenSpec(
             durationMillis = 500,
@@ -184,31 +211,13 @@ fun FavoriteIcon(breed: Breed) {
 
 @Preview
 @Composable
-fun MainScreenContentPreview_Success() {
-    MainScreenContent(
-        dogsState = BreedViewState.Content(
-            breeds = listOf(
-                Breed(0, "appenzeller", false),
-                Breed(1, "australian", true)
-            )
-        )
-    )
-}
-
-@Preview
-@Composable
-fun MainScreenContentPreview_Initial() {
-    MainScreenContent(dogsState = BreedViewState.Initial)
-}
-
-@Preview
-@Composable
-fun MainScreenContentPreview_Empty() {
-    MainScreenContent(dogsState = BreedViewState.Empty())
-}
-
-@Preview
-@Composable
-fun MainScreenContentPreview_Error() {
-    MainScreenContent(dogsState = BreedViewState.Error("Something went wrong!"))
+fun DetailsScreen(
+    onBack: () -> Unit = {},
+    breedId: Int = -1,
+    optionalText: String = "",
+) {
+    Column {
+        Text(text = "Showing details for breed ID -> $breedId")
+        Text(text = "Optional text is: $optionalText")
+    }
 }
