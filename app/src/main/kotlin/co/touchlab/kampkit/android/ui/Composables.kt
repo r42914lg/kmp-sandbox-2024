@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -41,6 +42,7 @@ import co.touchlab.kampkit.models.BreedViewState
 import co.touchlab.kampkit.models.PictureViewModel
 import co.touchlab.kampkit.models.PictureViewState
 import co.touchlab.kermit.Logger
+import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -232,6 +234,13 @@ fun DetailsScreen(
             is PictureViewState.Content -> {
                 Text(text = "Showing details for breed ID -> $breedId")
                 Text(text = "Optional text is: $optionalText")
+                val url = (state as PictureViewState.Content).pictureUrl
+                Text(text = "Pic URL is: $url")
+                AsyncImage(
+                    modifier = Modifier.fillMaxSize(),
+                    model = url,
+                    contentDescription = "Translated description of what the image contains"
+                )
             }
             PictureViewState.Error -> {
                 Text(text = "Error while loading")

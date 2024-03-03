@@ -13,6 +13,7 @@ ktlint-gradle = "12.1.0"
 compose = "1.5.4"
 composeCompiler = "1.5.8"
 nav_version = "2.5.3"
+coil = "2.6.0"
 
 android-desugaring = "2.0.4"
 androidx-core = "1.12.0"
@@ -51,6 +52,7 @@ compose-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "co
 compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
 compose-material = { module = "androidx.compose.material:material", version.ref = "compose" }
 compose-activity = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
+compose-coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
@@ -113,6 +115,7 @@ app-ui = [
     "compose-material",
     "compose-activity",
     "compose-navigation",
+    "compose-coil",
 ]
 ktor-common = ["ktor-client-core", "ktor-client-logging", "ktor-client-serialization", "ktor-client-contentNegotiation"]
 shared-commonTest = [
