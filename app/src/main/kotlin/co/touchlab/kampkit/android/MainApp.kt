@@ -7,6 +7,7 @@ import android.util.Log
 import co.touchlab.kampkit.AppInfo
 import co.touchlab.kampkit.initKoin
 import co.touchlab.kampkit.models.BreedViewModel
+import co.touchlab.kampkit.models.PictureViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
@@ -19,6 +20,12 @@ class MainApp : Application() {
             module {
                 single<Context> { this@MainApp }
                 viewModel { BreedViewModel(get(), get { parametersOf("BreedViewModel") }) }
+                viewModel {params ->
+                    PictureViewModel(
+                        params[0],
+                        get()
+                    )
+                }
                 single<SharedPreferences> {
                     get<Context>().getSharedPreferences(
                         "KAMPSTARTER_SETTINGS",

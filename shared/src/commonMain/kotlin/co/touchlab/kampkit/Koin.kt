@@ -3,6 +3,7 @@ package co.touchlab.kampkit
 import co.touchlab.kampkit.ktor.DogApi
 import co.touchlab.kampkit.ktor.DogApiImpl
 import co.touchlab.kampkit.models.BreedRepository
+import co.touchlab.kampkit.models.PictureRepository
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.StaticConfig
 import co.touchlab.kermit.platformLogWriter
@@ -72,6 +73,11 @@ private val coreModule = module {
             get(),
             get(),
             getWith("BreedRepository"),
+            get()
+        )
+    }
+    single {
+        PictureRepository(
             get()
         )
     }

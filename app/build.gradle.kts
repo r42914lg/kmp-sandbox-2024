@@ -49,6 +49,8 @@ android {
 
 dependencies {
     implementation(project(":shared"))
+    implementation(libs.koin.compose)
+    implementation(libs.koin.core)
     implementation(libs.bundles.app.ui)
     implementation(libs.multiplatformSettings.common)
     implementation(libs.kotlinx.dateTime)

@@ -7,7 +7,6 @@ import co.touchlab.kampkit.utils.doOnError
 import co.touchlab.kampkit.utils.doOnSuccess
 import co.touchlab.kermit.Logger
 import com.russhwolf.settings.Settings
-import io.ktor.client.call.body
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Clock
 
@@ -37,7 +36,7 @@ class BreedRepository(
 
     suspend fun refreshBreeds(): Throwable? {
         var resThrowable: Throwable? = null
-        dogApi.getJsonFromApi()
+        dogApi.getDogs()
             .doOnSuccess {
                 log.v { "Breed network result: ${it.status}" }
                 val breedList = it.message.keys.sorted().toList()

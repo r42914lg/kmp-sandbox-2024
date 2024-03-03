@@ -9,7 +9,7 @@ class DogApiMock : DogApi {
     var calledCount = 0
         private set
 
-    override suspend fun getJsonFromApi(): BreedResult {
+    override suspend fun getDogs(): BreedResult {
         val result = nextResult()
         calledCount++
         return result

@@ -43,7 +43,7 @@ class DogApiTest {
         }
         val dogApi = DogApiImpl(emptyLogger, engine)
 
-        val result = dogApi.getJsonFromApi()
+        val result = dogApi.getDogs()
         assertEquals(
             BreedResult(
                 mapOf(
@@ -67,7 +67,7 @@ class DogApiTest {
         val dogApi = DogApiImpl(emptyLogger, engine)
 
         assertFailsWith<ClientRequestException> {
-            dogApi.getJsonFromApi()
+            dogApi.getDogs()
         }
     }
 }

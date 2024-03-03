@@ -32,20 +32,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import co.touchlab.kampkit.android.R
 import co.touchlab.kampkit.db.Breed
 import co.touchlab.kampkit.models.BreedViewModel
 import co.touchlab.kampkit.models.BreedViewState
+import co.touchlab.kampkit.models.PictureViewModel
+import co.touchlab.kampkit.models.PictureViewState
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 import java.time.LocalDateTime
 
 @Composable
 fun MainScreen(
-    viewModel: BreedViewModel,
+    viewModel: BreedViewModel = koinViewModel(),
     log: Logger,
     onToDetails: (Breed, String) -> Unit,
     onBack: () -> Unit
@@ -209,15 +212,33 @@ fun FavoriteIcon(breed: Breed, onFavoriteClick: (Breed) -> Unit) {
     }
 }
 
-@Preview
 @Composable
 fun DetailsScreen(
     onBack: () -> Unit = {},
-    breedId: Int = -1,
+    breedId: String = "",
     optionalText: String = "",
+    pictureViewModel: PictureViewModel = koinViewModel { parametersOf(breedId) },
 ) {
+    val state by pictureViewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(pictureViewModel) {
+        pictureViewModel.activate()
+    }
+    BackHandler {
+        onBack()
+    }
     Column {
-        Text(text = "Showing details for breed ID -> $breedId")
-        Text(text = "Optional text is: $optionalText")
+        when (state) {
+            is PictureViewState.Content -> {
+                Text(text = "Showing details for breed ID -> $breedId")
+                Text(text = "Optional text is: $optionalText")
+            }
+            PictureViewState.Error -> {
+                Text(text = "Error while loading")
+            }
+            PictureViewState.Loading -> {
+                Text(text = "Loading")
+            }
+        }
     }
 }
