@@ -27,13 +27,16 @@ class BreedRepository(
 
     fun getBreeds(): Flow<List<Breed>> = dbHelper.selectAllItems()
 
-    suspend fun refreshBreedsIfStale() {
-        if (isBreedListStale()) {
+    suspend fun refreshBreedsIfStale(): Throwable? {
+        return if (isBreedListStale()) {
             refreshBreeds()
+        } else {
+            null
         }
     }
 
-    suspend fun refreshBreeds() {
+    suspend fun refreshBreeds(): Throwable? {
+        var resThrowable: Throwable? = null
         dogApi.getJsonFromApi()
             .doOnSuccess {
                 log.v { "Breed network result: ${it.status}" }
@@ -47,7 +50,9 @@ class BreedRepository(
             }
             .doOnError {
                 log.v { "Network error" }
+                resThrowable = it
             }
+        return resThrowable
     }
 
     suspend fun updateBreedFavorite(breed: Breed) {

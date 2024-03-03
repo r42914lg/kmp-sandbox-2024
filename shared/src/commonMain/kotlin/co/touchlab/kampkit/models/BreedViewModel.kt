@@ -33,14 +33,8 @@ class BreedViewModel(
     }
 
     private suspend fun observeBreeds() {
-        // Refresh breeds, and emit any exception that was thrown so we can handle it downstream
-        val refreshFlow = flow<Throwable?> {
-            try {
-                breedRepository.refreshBreedsIfStale()
-                emit(null)
-            } catch (exception: Exception) {
-                emit(exception)
-            }
+        val refreshFlow = flow {
+            emit(breedRepository.refreshBreedsIfStale())
         }
 
         combine(
