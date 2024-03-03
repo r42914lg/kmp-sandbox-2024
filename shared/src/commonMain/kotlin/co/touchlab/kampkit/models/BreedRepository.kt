@@ -3,8 +3,11 @@ package co.touchlab.kampkit.models
 import co.touchlab.kampkit.DatabaseHelper
 import co.touchlab.kampkit.db.Breed
 import co.touchlab.kampkit.ktor.DogApi
+import co.touchlab.kampkit.utils.doOnError
+import co.touchlab.kampkit.utils.doOnSuccess
 import co.touchlab.kermit.Logger
 import com.russhwolf.settings.Settings
+import io.ktor.client.call.body
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Clock
 
@@ -31,15 +34,20 @@ class BreedRepository(
     }
 
     suspend fun refreshBreeds() {
-        val breedResult = dogApi.getJsonFromApi()
-        log.v { "Breed network result: ${breedResult.status}" }
-        val breedList = breedResult.message.keys.sorted().toList()
-        log.v { "Fetched ${breedList.size} breeds from network" }
-        settings.putLong(DB_TIMESTAMP_KEY, clock.now().toEpochMilliseconds())
+        dogApi.getJsonFromApi()
+            .doOnSuccess {
+                log.v { "Breed network result: ${it.status}" }
+                val breedList = it.message.keys.sorted().toList()
+                log.v { "Fetched ${breedList.size} breeds from network" }
+                settings.putLong(DB_TIMESTAMP_KEY, clock.now().toEpochMilliseconds())
 
-        if (breedList.isNotEmpty()) {
-            dbHelper.insertBreeds(breedList)
-        }
+                if (breedList.isNotEmpty()) {
+                    dbHelper.insertBreeds(breedList)
+                }
+            }
+            .doOnError {
+                log.v { "Network error" }
+            }
     }
 
     suspend fun updateBreedFavorite(breed: Breed) {

@@ -1,6 +1,7 @@
 package co.touchlab.kampkit.ktor
 
 import co.touchlab.kampkit.response.BreedResult
+import co.touchlab.kampkit.utils.runOperationCatching
 import co.touchlab.kermit.Logger as KermitLogger
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -12,6 +13,7 @@ import io.ktor.client.plugins.logging.Logger as KtorLogger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.encodedPath
 import io.ktor.http.takeFrom
 import io.ktor.serialization.kotlinx.json.json
@@ -40,11 +42,11 @@ class DogApiImpl(private val log: KermitLogger, engine: HttpClientEngine) : DogA
         }
     }
 
-    override suspend fun getJsonFromApi(): BreedResult {
+    override suspend fun getJsonFromApi() = runOperationCatching {
         log.d { "Fetching Breeds from network" }
-        return client.get {
+        client.get {
             dogs("api/breeds/list/all")
-        }.body()
+        }.body<BreedResult>()
     }
 
     private fun HttpRequestBuilder.dogs(path: String) {
