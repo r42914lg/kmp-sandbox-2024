@@ -22,10 +22,10 @@ class PictureViewModel(
     }
 }
 
-sealed interface PictureViewState {
-    data object Loading : PictureViewState
-    data object Error : PictureViewState
+sealed class PictureViewState {
+    data object Loading : PictureViewState()
+    data object Error : PictureViewState()
     data class Content @DefaultArgumentInterop.Enabled constructor(
         val pictureUrl: String,
-    ) : PictureViewState
+    ) : PictureViewState()
 }

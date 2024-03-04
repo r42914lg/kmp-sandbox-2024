@@ -27,6 +27,11 @@ struct BreedListScreen: View {
                     try? await viewModel?.updateBreedFavorite(breed: breed)
                 }
             },
+            onBreedSelected: { breed in
+                Task {
+                    print("Breed selected --> " + breed.name)
+                }
+            },
             refresh: {
                 Task {
                     try? await viewModel?.refreshBreeds()
@@ -57,6 +62,7 @@ struct BreedListScreen: View {
 struct BreedListContent: View {
     var state: BreedViewState
     var onBreedFavorite: (Breed) -> Void
+    var onBreedSelected: (Breed) -> Void
     var refresh: () -> Void
 
     var body: some View {
@@ -65,9 +71,11 @@ struct BreedListContent: View {
                 switch onEnum(of: state) {
                 case .content(let content):
                     List(content.breeds, id: \.id) { breed in
-                        BreedRowView(breed: breed) {
-                            onBreedFavorite(breed)
-                        }
+                        BreedRowView(
+                            breed: breed,
+                            onFavoriteTap: { onBreedFavorite(breed) },
+                            onItemTap: { onBreedSelected(breed) }
+                        )
                     }
                 case .error(let error):
                     Spacer()
@@ -93,15 +101,17 @@ struct BreedListContent: View {
 
 struct BreedRowView: View {
     var breed: Breed
-    var onTap: () -> Void
+    var onFavoriteTap: () -> Void
+    var onItemTap: () -> Void
 
     var body: some View {
-        Button(action: onTap) {
+        Button(action: onItemTap) {
             HStack {
                 Text(breed.name)
                     .padding(4.0)
                 Spacer()
                 Image(systemName: (!breed.favorite) ? "heart" : "heart.fill")
+                    .onTapGesture { onFavoriteTap() }
                     .padding(4.0)
             }
         }
@@ -117,21 +127,25 @@ struct BreedListScreen_Previews: PreviewProvider {
                     Breed(id: 1, name: "australian", favorite: true)
                 ]),
                 onBreedFavorite: { _ in },
+                onBreedSelected: { _ in },
                 refresh: {}
             )
             BreedListContent(
                 state: .Initial.shared,
                 onBreedFavorite: { _ in },
+                onBreedSelected: { _ in },
                 refresh: {}
             )
             BreedListContent(
                 state: .Empty(),
                 onBreedFavorite: { _ in },
+                onBreedSelected: { _ in },
                 refresh: {}
             )
             BreedListContent(
                 state: .Error(error: "Something went wrong!"),
                 onBreedFavorite: { _ in },
+                onBreedSelected: { _ in },
                 refresh: {}
             )
         }
