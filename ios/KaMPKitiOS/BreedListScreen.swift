@@ -11,6 +11,7 @@ import shared
 
 private let log = koin.loggerWithTag(tag: "BreedListScreen")
 
+@available(iOS 16.0, *)
 struct BreedListScreen: View {
 
     @State
@@ -25,11 +26,6 @@ struct BreedListScreen: View {
             onBreedFavorite: { breed in
                 Task {
                     try? await viewModel?.updateBreedFavorite(breed: breed)
-                }
-            },
-            onBreedSelected: { breed in
-                Task {
-                    print("Breed selected --> " + breed.name)
                 }
             },
             refresh: {
@@ -59,10 +55,14 @@ struct BreedListScreen: View {
     }
 }
 
+@available(iOS 16.0, *)
 struct BreedListContent: View {
+
+    @EnvironmentObject
+    private var coordinator: Coordinator
+
     var state: BreedViewState
     var onBreedFavorite: (Breed) -> Void
-    var onBreedSelected: (Breed) -> Void
     var refresh: () -> Void
 
     var body: some View {
@@ -74,7 +74,12 @@ struct BreedListContent: View {
                         BreedRowView(
                             breed: breed,
                             onFavoriteTap: { onBreedFavorite(breed) },
-                            onItemTap: { onBreedSelected(breed) }
+                            onItemTap: {
+                                Task {
+                                    print("Breed selected --> " + breed.name)
+                                    coordinator.show(DetailsScreen.self)
+                                }
+                            }
                         )
                     }
                 case .error(let error):
@@ -118,6 +123,7 @@ struct BreedRowView: View {
     }
 }
 
+@available(iOS 16.0, *)
 struct BreedListScreen_Previews: PreviewProvider {
     static var previews: some View {
         Group {
@@ -127,25 +133,21 @@ struct BreedListScreen_Previews: PreviewProvider {
                     Breed(id: 1, name: "australian", favorite: true)
                 ]),
                 onBreedFavorite: { _ in },
-                onBreedSelected: { _ in },
                 refresh: {}
             )
             BreedListContent(
                 state: .Initial.shared,
                 onBreedFavorite: { _ in },
-                onBreedSelected: { _ in },
                 refresh: {}
             )
             BreedListContent(
                 state: .Empty(),
                 onBreedFavorite: { _ in },
-                onBreedSelected: { _ in },
                 refresh: {}
             )
             BreedListContent(
                 state: .Error(error: "Something went wrong!"),
                 onBreedFavorite: { _ in },
-                onBreedSelected: { _ in },
                 refresh: {}
             )
         }

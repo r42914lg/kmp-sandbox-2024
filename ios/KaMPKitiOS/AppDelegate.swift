@@ -9,6 +9,7 @@
 import SwiftUI
 import shared
 
+@available(iOS 16.0, *)
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -22,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         startKoin()
 
-        let viewController = UIHostingController(rootView: BreedListScreen())
+        let viewController = UIHostingController(rootView: RootView())
 
         self.window = UIWindow(frame: UIScreen.main.bounds)
         self.window?.rootViewController = viewController

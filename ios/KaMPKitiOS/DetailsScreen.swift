@@ -10,12 +10,13 @@ import SwiftUI
 import shared
 
 struct DetailsScreen: View {
+
     @State
     var viewModel: PictureViewModel?
-    
+
     @State
     var state: PictureViewState = .Loading.shared
-    
+
     var body: some View {
         ZStack {
             VStack {
