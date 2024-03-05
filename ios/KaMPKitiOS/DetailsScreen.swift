@@ -28,7 +28,9 @@ struct DetailsScreen: View {
             VStack {
                 switch onEnum(of: picState) {
                 case .content(let content):
-                    Text(content.pictureUrl)
+                    Text("Showing details for breed ID -> " + breedName)
+                    Text("Pic URL is: " + content.pictureUrl)
+                    AsyncImage(url: URL(string: content.pictureUrl))
                 case .error:
                     Spacer()
                     Text("Error while loading!!!")

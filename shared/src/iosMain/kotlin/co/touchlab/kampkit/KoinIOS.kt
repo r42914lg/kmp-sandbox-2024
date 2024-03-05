@@ -35,7 +35,7 @@ actual val platformModule = module {
 
     single { BreedViewModel(get(), getWith("BreedViewModel")) }
 
-    single { params -> PictureViewModel(params[0], get()) }
+    factory { params -> PictureViewModel(params[0], get()) }
 }
 
 // Access from Swift to create a logger
