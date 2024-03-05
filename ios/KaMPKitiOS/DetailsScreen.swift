@@ -15,12 +15,18 @@ struct DetailsScreen: View {
     var viewModel: PictureViewModel?
 
     @State
-    var state: PictureViewState = .Loading.shared
+    var picState: PictureViewState = .Loading.shared
+
+    var breedName: String = ""
+
+    init(breed: String) {
+        self.breedName = breed
+    }
 
     var body: some View {
         ZStack {
             VStack {
-                switch onEnum(of: state) {
+                switch onEnum(of: picState) {
                 case .content(let content):
                     Text(content.pictureUrl)
                 case .error:
@@ -34,6 +40,24 @@ struct DetailsScreen: View {
                     Spacer()
                 }
             }
+        }
+        .task {
+            let viewModel = KotlinDependencies.shared.getPictureViewModel(breed: breedName)
+            await withTaskCancellationHandler(
+                operation: {
+                    self.viewModel = viewModel
+                    Task {
+                        try? await viewModel.activate()
+                    }
+                    for await state in viewModel.state {
+                        self.picState = state
+                    }
+                },
+                onCancel: {
+                    viewModel.clear()
+                    self.viewModel = nil
+                }
+            )
         }
     }
 }

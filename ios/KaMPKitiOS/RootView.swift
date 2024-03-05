@@ -17,11 +17,14 @@ struct RootView: View {
             VStack {
                 BreedListScreen()
             }
-            .navigationDestination(for: String.self) { id in
-                if id == String(describing: BreedListScreen.self) {
+            .navigationDestination(for: String.self) { routeId in
+                if routeId == String(describing: BreedListScreen.self) {
                     BreedListScreen()
-                } else if id == String(describing: DetailsScreen.self) {
-                    DetailsScreen()
+                } else if routeId == String(describing: DetailsScreen.self) {
+                    let arg0 = coordinator.routeParams[0]
+                    (arg0 as? String).map {
+                        DetailsScreen(breed: $0)
+                    }
                 }
             }
         }

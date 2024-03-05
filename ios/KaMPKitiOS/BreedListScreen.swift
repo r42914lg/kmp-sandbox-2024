@@ -77,6 +77,7 @@ struct BreedListContent: View {
                             onItemTap: {
                                 Task {
                                     print("Breed selected --> " + breed.name)
+                                    coordinator.routeParams[0] = breed.name
                                     coordinator.show(DetailsScreen.self)
                                 }
                             }
